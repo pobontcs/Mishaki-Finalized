@@ -16,7 +16,7 @@ export function Header({
   return (
     <header
       className={`w-full
-      bg-gradient-to-r from-red-950 via-red-800 to-red-600
+      bg-linear-to-r from-red-950 via-red-800 to-red-600
       backdrop-blur-md border border-white/10 shadow-lg
       px-6 py-4 flex items-center justify-between
       sticky top-0 z-50 relative ${className}`}

@@ -51,7 +51,7 @@ export default function Landing() {
           {/* Call to Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
             <Link 
-              href="/products" 
+              href="/shop" 
               className="bg-red-900 hover:bg-red-800 text-white font-semibold py-4 px-8 rounded-full shadow-lg shadow-red-900/30 transition-all hover:-translate-y-1 text-center"
             >
               Shop Collection
