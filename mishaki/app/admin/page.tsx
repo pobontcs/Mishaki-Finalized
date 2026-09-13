@@ -3,6 +3,8 @@
 import { Header } from "../contents/Header";
 import { useState } from "react";
 import Orders from "../admin/orders";
+import Analysis from "../admin/analysis";
+import ProductPage from "../admin/product";
 import { LayoutDashboard, ShoppingBag, LineChart, Package, Settings } from 'lucide-react';
 
 // --- MOCK DATA ---
@@ -231,8 +233,8 @@ export default function Admin() {
           
           {activePage === "Overview" && OverviewPage}
           {activePage === "Orders" && <Orders/>}
-          {activePage === "Revenue" && RevenuePage}
-          {activePage === "Products" && ProductsPage}
+          {activePage === "Revenue" && <Analysis/>}
+          {activePage === "Products" && <ProductPage/>}
           {activePage === "Settings" && SettingsPage}
 
         </div>
