@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 // 1. ADD THIS IMPORT for Next.js navigation
 import { useRouter } from "next/navigation"; 
 
@@ -7,57 +7,66 @@ import CardModule from "../contents/card";
 import ProductModal from "../contents/ProductModal"; 
 import { Header } from "../contents/Header";
 import { Search, ShoppingCart } from "lucide-react"; 
-
-const demoProducts = [
-  { 
-    id: 1, 
-    title: "Nike Air Max 270", 
-    price: 139.99, 
-    image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&q=80", 
-    variant: "WOMEN SHOES", 
-    category: "Western", 
-    quantity: 1,
-    description: "The Nike Air Max 270 delivers visible air under every step. Updated for modern comfort, it nods to the original 1991 Air Max 180."
-  },
-  { 
-    id: 2, 
-    title: "Nike Joyride Run", 
-    price: 110.00, 
-    image: "https://images.unsplash.com/photo-1605348532760-6753d2c43329?w=500&q=80", 
-    variant: "RUNNING SHOES", 
-    category: "Daily Life", 
-    quantity: 1,
-    description: "Tiny foam beads underfoot conform to your foot for cushioning that stands up to your mileage. Perfect for daily runs."
-  },
-  { 
-    id: 3, 
-    title: "Nike React Infinity", 
-    price: 160.00, 
-    image: "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=500&q=80", 
-    variant: "MEN SHOES", 
-    category: "Traditional", 
-    quantity: 1,
-    description: "Designed to help reduce injury and keep you on the run. More foam and improved upper details provide a secure and cushioned feel."
-  },
-];
-
-const CATEGORIES = ["All", "Traditional", "Western", "Daily Life"];
+import { getProducts, getCategories, ProductData, CategoryData } from "../lib/api";
+import { useCart } from "../contexts/CartContext";
 
 export default function Shop() {
-  // 2. INITIALIZE THE ROUTER
   const router = useRouter();
+  const { totalItems } = useCart();
+
+  const [products, setProducts] = useState<ProductData[]>([]);
+  const [categories, setCategories] = useState<CategoryData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
 
-  if (typeof window !== 'undefined') {
-    document.body.style.overflow = selectedProduct ? 'hidden' : 'unset';
-  }
+  useEffect(() => {
+    let isMounted = true;
+    async function loadData() {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const [fetchedProducts, fetchedCategories] = await Promise.all([
+          getProducts(),
+          getCategories()
+        ]);
+        if (isMounted) {
+          setProducts(fetchedProducts);
+          setCategories(fetchedCategories);
+        }
+      } catch (err) {
+        if (isMounted) {
+          console.error("Failed to load shop data:", err);
+          setError("Failed to load products. Please try again later.");
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    }
+    loadData();
+    return () => { isMounted = false; };
+  }, []);
 
-  const filteredProducts = demoProducts.filter((product) => {
-    const matchesSearch = product.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = activeCategory === "All" || product.category === activeCategory;
+  useEffect(() => {
+    document.body.style.overflow = selectedProduct ? 'hidden' : 'unset';
+    return () => { document.body.style.overflow = 'unset'; };
+  }, [selectedProduct]);
+
+  const categoryNames = ["All", ...categories.map(c => c.name)];
+
+  const filteredProducts = products.filter((product) => {
+    // Check if category matches (Backend category_id mapping or string if populated)
+    // To simplify filtering without needing full category object map, we can rely on frontend filtering if the backend didn't filter it already.
+    // However, product.category_id is an ID. We can map it if we need to.
+    // Actually, our API lets us filter directly, but since we fetched all, we filter locally here for snappiness.
+    const productCategoryName = categories.find(c => c.id === product.category_id)?.name || "";
+    const matchesSearch = (product.name || product.title || "").toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = activeCategory === "All" || productCategoryName === activeCategory;
     return matchesSearch && matchesCategory;
   });
 
@@ -81,7 +90,7 @@ export default function Shop() {
         </div>
 
         <div className="flex gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 [&::-webkit-scrollbar]:hidden">
-          {CATEGORIES.map((category) => (
+          {categoryNames.map((category) => (
             <button
               key={category}
               onClick={() => setActiveCategory(category)}
@@ -103,17 +112,26 @@ export default function Shop() {
         {searchQuery ? `Results for "${searchQuery}"` : activeCategory === "All" ? "New Arrivals" : `${activeCategory} Collection`}
       </h2>
       
-      {filteredProducts.length > 0 ? (
+      {error ? (
+        <div className="w-full py-20 flex flex-col items-center justify-center text-center">
+          <p className="text-red-600 font-medium">{error}</p>
+        </div>
+      ) : isLoading ? (
+        <div className="w-full py-20 flex flex-col items-center justify-center text-center">
+          <div className="animate-spin w-12 h-12 border-4 border-red-900 border-t-transparent rounded-full mb-4"></div>
+          <p className="text-gray-500 font-medium">Loading products...</p>
+        </div>
+      ) : filteredProducts.length > 0 ? (
         <div className="flex flex-wrap gap-4">
           {filteredProducts.map((product) => (
             <CardModule 
               key={product.id}
               id={product.id}
-              title={product.title}
+              title={product.name || product.title}
               price={product.price}
-              image={product.image}
+              image={product.main_image || product.image || ""}
               variant={product.variant}
-              quantity={product.quantity}
+              quantity={product.stock_quantity}
               onClickImage={() => setSelectedProduct(product)}
             />
           ))}
@@ -151,7 +169,7 @@ export default function Shop() {
         <ShoppingCart className="w-6 h-6 md:w-7 md:h-7 group-hover:animate-bounce" />
         
         <span className="absolute -top-1 -right-1 md:-top-2 md:-right-2 bg-gray-900 text-white text-xs font-black w-6 h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
-          2
+          {totalItems}
         </span>
       </button>
 

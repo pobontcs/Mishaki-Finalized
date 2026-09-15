@@ -24,6 +24,61 @@ export function Header({
       {/* Glossy Shine */}
       <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-transparent pointer-events-none" />
 
+      {/* Floral Sketch Design Background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20 flex items-center justify-center">
+        <svg
+          className="w-full h-full object-cover"
+          viewBox="0 0 1000 200"
+          preserveAspectRatio="xMidYMid slice"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M -100 100 Q 50 10 150 100 T 400 100 T 650 100 T 900 100 T 1150 100"
+            stroke="white"
+            strokeWidth="1.5"
+            strokeDasharray="5,5"
+            strokeOpacity="0.5"
+          />
+          <path
+            d="M 50 80 C 60 40, 90 40, 100 80 C 90 120, 60 120, 50 80 Z"
+            stroke="white"
+            strokeWidth="1"
+            fill="transparent"
+          />
+          <path
+            d="M 150 120 C 160 160, 190 160, 200 120 C 190 80, 160 80, 150 120 Z"
+            stroke="white"
+            strokeWidth="1"
+            fill="transparent"
+          />
+          <path
+            d="M 300 70 C 310 20, 350 20, 360 70 C 350 120, 310 120, 300 70 Z"
+            stroke="white"
+            strokeWidth="1"
+            fill="transparent"
+          />
+          <path
+            d="M 450 130 C 470 180, 510 180, 530 130 C 510 80, 470 80, 450 130 Z"
+            stroke="white"
+            strokeWidth="1"
+            fill="transparent"
+          />
+          <path
+            d="M 700 60 C 720 10, 760 10, 780 60 C 760 110, 720 110, 700 60 Z"
+            stroke="white"
+            strokeWidth="1"
+            fill="transparent"
+          />
+          <path
+            d="M 850 140 C 860 180, 890 180, 900 140 C 890 100, 860 100, 850 140 Z"
+            stroke="white"
+            strokeWidth="1"
+            fill="transparent"
+          />
+        </svg>
+      </div>
+
       {/* LEFT SIDE */}
       <div className="flex items-center w-1/3 relative z-10">
         <Link href="/" className="hover:opacity-80 transition-opacity">
